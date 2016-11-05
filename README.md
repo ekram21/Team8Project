@@ -1,5 +1,5 @@
 # Team8Project
-All the code I am working on for the team 8 autonomous buggy project
+All the code I am currently working on for the team 8 autonomous buggy project
 
 Current architecture will consist of one raspberry pi which will handle all the motor running functions/ input to the system while a second raspberry pi will be responsible for outputting all useful data onto a dynamic website. This website will also have a dynamic google map with imaging of buggy approaching its destination.
 
