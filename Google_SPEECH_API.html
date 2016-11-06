@@ -1,3 +1,11 @@
+<!--Author:Ekram ------>
+<!--This is a work in progress to control the tank system with voice commands. It started off with the simple google search voice function. This was modified so that
+instead of searching the spoken word on google, the word was recorded on the pi as a string and then used as the argument to drive the motors. However this required the user to
+press the mic button everytime he wanted to give a command. A similar program made by google called web speech dictation kit basically after pressing the mic button takes everything spoken
+and converts it to text indefinitely on a text box on the webpage. This was modified so the browser automatically pressed the mic button and a script was added to continuously
+monitor the string field where the dictated text was added. If this script ever detected the trigger word in this dictation then it would automatically trigger the aforementioned
+google search function which would then take commands such as left or right and then log it onto the raspberry pi. Current trigger word is 'computer'--->
+
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Web Speech API Demo</title>
@@ -6,13 +14,13 @@
 
 <script>
 jQuery(function(){
-   jQuery('#start_button').click();
+   jQuery('#start_button').click();       // This small jquery function was added so that every time the page is loaded the browser will automatically click the mic image for you, effectively simulating an unbroken listening computer
 });
 </script>
 
       <!-- HTML5 Speech Recognition API -->
 <script>
-  function startDictation() {
+  function startDictation() {   //This is the function responsible for voice activated google searches. It is called on the webpage on line 128 and has been edited to instead of going to google/search to go to decipher function on Rclaw.py
  
     if (window.hasOwnProperty('webkitSpeechRecognition')) {
  
@@ -125,7 +133,7 @@ jQuery(function(){
   <a href="http://dvcs.w3.org/hg/speech-api/raw-file/tip/speechapi.html">
     Web Speech API</a> Demonstration</h1>
 
-      <!-- Search Form -->
+      <!-- Search Form.  INSTEAD OF action going to google/search it has been edited to go to decipher function on Rclaw.py-->
       <form id="labnol" method="POST" action="{{ url_for('Decipher') }}">
       <div class="speech">
       <input type="text" name="q" id="transcript" placeholder="Speak" />
@@ -156,7 +164,7 @@ jQuery(function(){
      version 25 or later.</p>
 </div>
 <div class="right">
-  <button id="start_button" onclick="startButton(event)" >
+  <button id="start_button" onclick="startButton(event)" >           <!----THIS USED TO BE WHAT TRIGGERED THE DICTATION SOFTWARE. REMOVED SO NOW WEB PAGE AUTOMATICALLY CLICKS THE BUTTON FOR YOU WITH JQUERY SCRIPT AT VEY TOP-->
     <img id="start_img" src="https://cdn2.iconfinder.com/data/icons/new-year-s-hand-drawn-sticker/64/microphone-128.png" alt="Start"></button>
 </div>
 <div id="results">
@@ -341,8 +349,8 @@ if (!('webkitSpeechRecognition' in window)) {
     final_transcript = capitalize(final_transcript);
     final_span.innerHTML = linebreak(final_transcript);
     test.innerHTML = linebreak(final_transcript);
-    if($('#test').text().indexOf('Kevin') != -1){
-      startDictation();
+    if($('#test').text().indexOf('Computer') != -1){               //THIS IS THE SPOT I EDITED with JQUERY TO CONNECT THE GOOGLE SEARCH FUNCTION WITH THE DICTATION FUNCTION
+      startDictation();                                         // indexof('place whatever you want the trigger word to be here')
     }
    
     interim_span.innerHTML = linebreak(interim_transcript);
