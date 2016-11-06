@@ -11,4 +11,4 @@ The objective of Rclaw_Flask.py is to set up a web browser with buttons to wirel
 
 Proximity_Flask.py is a standalone file which takes dynamic readings from the proximity sensors and streams it directly into a website.
 
-Map_GPS.py is responsible for creating a google map instance on the user's object and mark with a tank icon the current location of the buggy. It also allows the user to click on the map and this co-ordinate is then sent to the pi which can use it to drive the buggy. The algorithm to achieve this is being worked upon currently. This python file calls the maptest.html which contains the Google map coding stuff.
+Map_GPS.py is responsible for creating a google map instance on the user's browser and mark with a tank icon the current location of the buggy. It also allows the user to click on the map and this co-ordinate is then sent to the pi which can then be used to drive the buggy. The algorithm to achieve this is being worked upon currently. This python file calls the maptest.html which contains the Google map coding stuff.
