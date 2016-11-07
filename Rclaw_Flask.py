@@ -103,7 +103,7 @@ def forward():
 </html>
 '''
 @app.route("/backward")
-def forward():
+def backward():
     try:
         roboclaw.BackwardM1(address, 64)         #Custom backward motion tank motor values
         roboclaw.BackwardM2(address, 64)
@@ -127,7 +127,7 @@ def forward():
 '''
 
 @app.route("/left")
-def forward():
+def left():
     try:
         roboclaw.ForwardM1(address, 32)         #Custom left motion tank motor values
         roboclaw.ForwardM2(address, 64)
@@ -151,7 +151,7 @@ def forward():
 '''
 
 @app.route("/right")
-def forward():
+def right():
     try:
         roboclaw.ForwardM1(address, 64)         #Custom right motion tank motor values
         roboclaw.ForwardM2(address, 32)
@@ -175,7 +175,7 @@ def forward():
 '''
 
 @app.route("/stop")
-def forward():
+def stop():
     try:
         roboclaw.ForwardM1(address, 0)         #Custom stop motion tank motor values
         roboclaw.ForwardM2(address, 0)
@@ -224,16 +224,16 @@ def Decipher():
             
     elif (new1 == "right" or new1.startswith('ry') or new1.startswith('ri') or new1.startswith('re') or new1.startswith('bright') or new1.startswith('ro')):
         try:
-            roboclaw.BackwardM1(address, 64)         #Custom right motion tank motor values
-            roboclaw.BackwardM2(address, 32)
+            roboclaw.ForwardM1(address, 64)         #Custom right motion tank motor values
+            roboclaw.ForwardM2(address, 32)
         except:
             print("problem with roboclaw")
             AttemptToConnectToRoboClaw()
             
     elif (new1 == "left" or new1.startswith('ly') or new1.startswith('la') or new1.startswith('lo') or new1.startswith('le') or new1.startswith('lu')):
         try:
-            roboclaw.BackwardM1(address, 32)         #Custom left motion tank motor values
-            roboclaw.BackwardM2(address, 64)
+            roboclaw.ForwardM1(address, 32)         #Custom left motion tank motor values
+            roboclaw.ForwardM2(address, 64)
         except:
             print("problem with roboclaw")
             AttemptToConnectToRoboClaw()
