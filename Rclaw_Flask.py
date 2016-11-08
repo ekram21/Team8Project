@@ -1,40 +1,30 @@
 #Author: Ekram
 #Made 30/10/2016
 #Roboclaw stuff was copy pasted from Sam's code
-#Using python web flask framework, html, javascript
+#Using python web flask framework, html and javascript and a little jquery
 #THIS DOES NOT HAVE PROXIMITY SENSING YET SO PROCEED WITH CAUTION
 #WORK LEFT: Adding sqlite to fetch proximity readings from the Monitor_values table in t7.db and use that as argument to limit motion of the tank
 #VERY IMPORTANT: BEFORE RUNNING THIS MAKE SURE ALL THE ROOT WEBPAGE ADDRESS IN THIS CODE MATCHES WITH THE pi's IP ADDRESS
 #Place Rclaw.py inside /home/pi AND create a folder inside /home/pi called templates and place Rclaw_main.html in there
 #Run Rclaw.py from linux command terminal to run this program
-#To run the decipher function change Rclaw_main.html in form function to Google_SPEECH_API.html
+#To activate the voice rec stuff add Google_Speech_API.html in the templates folder and edit it in on line 44 instead of Rclaw_main.html
 
 #Importing all the relevant stuff
 import time
-import roboclaw
-import serial
 import sys
 import RPi.GPIO as GPIO
 from flask import Flask, render_template, request, url_for
 
-#Global Vars
-address = 0x80              #Roboclaw Address
+#Setup MQTT connection to send values from pad
+mqttc=mqtt.Client()
+mqttc.username_pw_set('sam','mosquitto1894')
+mqttc.connect("130.88.154.7",1894,60)
+mqttc.loop_start() #start threaded so the pygame stuff can work
+
 
 # Initialize the Flask application
 app = Flask(__name__)
 
-
-#----Roboclaw connection function-----------#
-def AttemptToConnectToRoboClaw():
-    try:
-        roboclaw.Open("/dev/ttyACM0",115200)
-        #Motor safe state
-        roboclaw.ForwardMixed(address, 0)
-        roboclaw.TurnRightMixed(address, 0)
-       
-    except Exception as e:
-        print("problem with roboclaw")
-        print e
       
         
 # Define a route for the default URL, which loads the form. This is root so this webpage will be output to whoever goes to address http://localhost:5000 (localhost= pi IP address)
@@ -56,11 +46,11 @@ def Manual():
     Actual_M2 = (new2/100)*127
     
     try:
-        roboclaw.ForwardM1(address, Actual_M1)         #Slotting in the two motor integer values into roboclaw forward function
-        roboclaw.ForwardM2(address, Actual_M2)
+        mqttc.publish("RoboClaw/MotorOne/PWM", str(Actual_M1), 0)
+        mqttc.publish("RoboClaw/MotorTwo/PWM", str(Actual_M2), 0)
     except:
-        print("problem with roboclaw")
-        AttemptToConnectToRoboClaw()
+        print("ERROR COULD NOT PUBLISH VALUES")
+        
 #This webpage will be returned when the user presses submit button, the location.href function redirects the page back to rclaw_main.html so this is a placeholder page    
     return '''
 <!DOCTYPE html>
@@ -73,20 +63,21 @@ def Manual():
 
    <body>
    <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
-   If you can read this, either you have slow internet or somethng went horribly wrong</h1>
+   If you can read this, either your internet connection in hiccuping or somethng  else went horribly wrong</h1>
    </body>
 </html>
 '''
 
+#-------------------THIS SECTION IS FOR THE BROWSER DIRECTIONAL BUTTONS TO CONTROL THE TANK----------------------------------#
 #----------------Webpage button URL redirections, all the return statements are copy pasted and identical--------------------#
 @app.route("/forward")
 def forward():
     try:
-        roboclaw.ForwardM1(address, 64)         #Custom forward motion tank motor values
-        roboclaw.ForwardM2(address, 64)
+        mqttc.publish("RoboClaw/MotorOne/PWM",'32', 0)
+        mqttc.publish("RoboClaw/MotorTwo/PWM",'32', 0)
     except:
-        print("problem with roboclaw")
-        AttemptToConnectToRoboClaw()   
+        print("ERROR COULD NOT PUBLISH")
+    
     return '''
 <!DOCTYPE html>
    <head>
@@ -97,19 +88,19 @@ def forward():
    </head>
 
    <body>
-   <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
-   If you can read this, either you have slow internet or somethng went horribly wrong</h1>
+      <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
+   If you can read this, either your internet connection in hiccuping or somethng  else went horribly wrong</h1>
    </body>
 </html>
 '''
 @app.route("/backward")
 def backward():
     try:
-        roboclaw.BackwardM1(address, 64)         #Custom backward motion tank motor values
-        roboclaw.BackwardM2(address, 64)
+        mqttc.publish("RoboClaw/MotorOne/PWM",'-32', 0)
+        mqttc.publish("RoboClaw/MotorTwo/PWM",'-32', 0)
     except:
-        print("problem with roboclaw")
-        AttemptToConnectToRoboClaw()   
+        print("ERROR COULD NOT PUBLISH")
+ 
     return '''
 <!DOCTYPE html>
    <head>
@@ -120,8 +111,8 @@ def backward():
    </head>
 
    <body>
-   <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
-   If you can read this, either you have slow internet or somethng went horribly wrong</h1>
+     <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
+   If you can read this, either your internet connection in hiccuping or somethng  else went horribly wrong</h1>
    </body>
 </html>
 '''
@@ -129,11 +120,11 @@ def backward():
 @app.route("/left")
 def left():
     try:
-        roboclaw.ForwardM1(address, 32)         #Custom left motion tank motor values
-        roboclaw.ForwardM2(address, 64)
+        mqttc.publish("RoboClaw/MotorOne/PWM",'64', 0)
+        mqttc.publish("RoboClaw/MotorTwo/PWM",'32', 0)
     except:
-        print("problem with roboclaw")
-        AttemptToConnectToRoboClaw()   
+        print("ERROR COULD NOT PUBLISH")
+
     return '''
 <!DOCTYPE html>
    <head>
@@ -144,8 +135,8 @@ def left():
    </head>
 
    <body>
-   <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
-   If you can read this, either you have slow internet or somethng went horribly wrong</h1>
+    <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
+   If you can read this, either your internet connection in hiccuping or somethng  else went horribly wrong</h1>
    </body>
 </html>
 '''
@@ -153,11 +144,11 @@ def left():
 @app.route("/right")
 def right():
     try:
-        roboclaw.ForwardM1(address, 64)         #Custom right motion tank motor values
-        roboclaw.ForwardM2(address, 32)
+        mqttc.publish("RoboClaw/MotorOne/PWM",'32', 0)
+        mqttc.publish("RoboClaw/MotorTwo/PWM",'64', 0)
     except:
-        print("problem with roboclaw")
-        AttemptToConnectToRoboClaw()   
+        print("ERROR COULD NOT PUBLISH")
+
     return '''
 <!DOCTYPE html>
    <head>
@@ -168,8 +159,8 @@ def right():
    </head>
 
    <body>
-   <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
-   If you can read this, either you have slow internet or somethng went horribly wrong</h1>
+     <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
+   If you can read this, either your internet connection in hiccuping or somethng  else went horribly wrong</h1>
    </body>
 </html>
 '''
@@ -177,11 +168,11 @@ def right():
 @app.route("/stop")
 def stop():
     try:
-        roboclaw.ForwardM1(address, 0)         #Custom stop motion tank motor values
-        roboclaw.ForwardM2(address, 0)
+        mqttc.publish("RoboClaw/MotorOne/PWM",'0', 0)
+        mqttc.publish("RoboClaw/MotorTwo/PWM",'0', 0)
     except:
-        print("problem with roboclaw")
-        AttemptToConnectToRoboClaw()   
+        print("ERROR COULD NOT PUBLISH")
+        
     return '''
 <!DOCTYPE html>
    <head>
@@ -192,55 +183,58 @@ def stop():
    </head>
 
    <body>
-   <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
-   If you can read this, either you have slow internet or somethng went horribly wrong</h1>
+     <h1>The script above me is supposed to redirect this page back to rclaw_main.html before I finish loading.
+   If you can read this, either your internet connection in hiccuping or somethng  else went horribly wrong</h1>
    </body>
 </html>
 '''
+#------------------------BROWSER DIRECTIONAL BUTTONS URL REDIRECTIONS END---------------------------------------------------------------------------------#
 
-#------------EXPERIMENTAL VOICE RECOGNITION CODE, PROCEED WITH CAUTION. To use this change the html file call inside function form to Google_SPEECH_API.html----------#
-#-----------Be careful since this does not have any proximity arguments and the motor speed is continuous once set----------------------------------------------------#
+
+#-------THIS IS EXPERIMENTAl VOICE RECOGNITION TANK CONTROL, PROCEED WITH CAUTION, THIS IS TO BE RUN ON TOP OF GOOGLE WEB SPEECH DICTATION KIT-------------#
+#Current commands: LEFT,RIGHT,FORWARD,BACKWARD and INITIALISE. (Anything not recognized will stop the motors)
+#Commands to add: STATUS(Open a new browser tab with monitor values) , POSITION(Open a new browser tab with position on google maps) 
 @app.route('/Decipher/', methods=['POST'])
 def Decipher():
-    Var1 = request.form['q']                    #Accepting the value from the website
+    Var1 = request.form['q']
     print (Var1)
-    new1 = str(Var1)
+    print (Var1)
+    print (Var1)
+    new1 = str(Var1) #Var1 should already be a string but just to be sure, converting it again incase the microphone decides to record something as int
     
-    if (new1 == "forward" or new1.startswith('fe') or new1.startswith('fo') or new1.startswith('fy') or new1.startswith('fu') or new1.startswith('fa')):   #Checking to see if the spoken word is forward or starts with fe/fo/fy/etc
+    if (new1 == "forward" or new1.startswith('fo') or new1.startswith('fa') ):   #This will return true if the spoken word is forward OR if the spoken word starts with fo/fa
         try:
-            roboclaw.ForwardM1(address, 64)         #Custom forward motion tank motor values
-            roboclaw.ForwardM2(address, 64)
+            mqttc.publish("RoboClaw/MotorOne/PWM",'32', 0)
+            mqttc.publish("RoboClaw/MotorTwo/PWM",'32', 0)
         except:
-            print("problem with roboclaw")
-            AttemptToConnectToRoboClaw()
+            print("ERROR COULD NOT PUBLISH")
             
-    elif (new1 == "backward" or new1.startswith('ba') or new1.startswith('bo') or new1.startswith('by') or new1.startswith('bu') or new1.startswith('be')):
+    elif (new1 == "backward" or new1.startswith('ba') or new1.startswith('bu') ): #This will return true if the spoken word is backward OR if the spoken word starts with ba/bu
         try:
-            roboclaw.BackwardM1(address, 64)         #Custom backward motion tank motor values
-            roboclaw.BackwardM2(address, 64)
+            mqttc.publish("RoboClaw/MotorOne/PWM",'-32', 0)
+            mqttc.publish("RoboClaw/MotorTwo/PWM",'-32', 0)
         except:
-            print("problem with roboclaw")
-            AttemptToConnectToRoboClaw()
+            print("ERROR COULD NOT PUBLISH")
             
-    elif (new1 == "right" or new1.startswith('ry') or new1.startswith('ri') or new1.startswith('re') or new1.startswith('bright') or new1.startswith('ro')):
+    elif (new1 == "left" or new1.startswith('le') or new1.startswith('lo') or new1.startswith('li') or new1.startswith('ly') ):  #This will return true if the spoken word is left OR if the spoken word starts with le/lo/ly
         try:
-            roboclaw.ForwardM1(address, 64)         #Custom right motion tank motor values
-            roboclaw.ForwardM2(address, 32)
+            mqttc.publish("RoboClaw/MotorOne/PWM",'64', 0)
+            mqttc.publish("RoboClaw/MotorTwo/PWM",'32', 0)
         except:
-            print("problem with roboclaw")
-            AttemptToConnectToRoboClaw()
+            print("ERROR COULD NOT PUBLISH")
+
             
-    elif (new1 == "left" or new1.startswith('ly') or new1.startswith('la') or new1.startswith('lo') or new1.startswith('le') or new1.startswith('lu')):
+    elif (new1 == "right" or new1.startswith('ri') or new1.startswith('ry') or new1.startswith('bri') ):    #This will return true if the spoken word is right/bright OR if the spoken word starts with ri/ry
         try:
-            roboclaw.ForwardM1(address, 32)         #Custom left motion tank motor values
-            roboclaw.ForwardM2(address, 64)
+            mqttc.publish("RoboClaw/MotorOne/PWM",'32', 0)
+            mqttc.publish("RoboClaw/MotorTwo/PWM",'64', 0)
         except:
-            print("problem with roboclaw")
-            AttemptToConnectToRoboClaw()
+            print("ERROR COULD NOT PUBLISH")
+                
+            
     else:
-        roboclaw.ForwardM1(address, 0)         #Any other spoken word if slips through will make motors stop
-        roboclaw.ForwardM2(address, 0)
-            
+        mqttc.publish("RoboClaw/MotorOne/PWM",'0', 0)
+        mqttc.publish("RoboClaw/MotorTwo/PWM",'0', 0)
     return '''
 <!DOCTYPE html>
    <head>
@@ -255,14 +249,14 @@ def Decipher():
    </body>
 </html>
 '''
+#----------------------EXPERIMENTAL VOICE RECOGNITION CODE END---------------------------------------------------------#
 
 
-
+        
 
 # Run the app :)
 if __name__ == "__main__":
-    AttemptToConnectToRoboClaw() 
-    app.run(host='0.0.0.0', debug=True)
+   app.run(host='0.0.0.0', debug=True)
 
 
 
