@@ -5,8 +5,8 @@
 #THIS DOES NOT HAVE PROXIMITY SENSING YET SO PROCEED WITH CAUTION
 #WORK LEFT: Adding sqlite to fetch proximity readings from the Monitor_values table in t7.db and use that as argument to limit motion of the tank
 #VERY IMPORTANT: BEFORE RUNNING THIS MAKE SURE ALL THE ROOT WEBPAGE ADDRESS IN THIS CODE MATCHES WITH THE pi's IP ADDRESS
-#Place Rclaw.py inside /home/pi AND create a folder inside /home/pi called templates and place Rclaw_main.html in there
-#Run Rclaw.py from linux command terminal to run this program
+#Place Rclaw_Flask.py inside /home/pi AND create a folder inside /home/pi called templates and place Rclaw_main.html in there
+#Run Rclaw_Flask.py from linux command terminal to run this program
 #To activate the voice rec stuff add Google_Speech_API.html in the templates folder and edit it in on line 44 instead of Rclaw_main.html
 
 #Importing all the relevant stuff
