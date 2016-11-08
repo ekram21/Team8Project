@@ -37,15 +37,34 @@
         var sackville = { lat: Start_Lat, lng: Start_Long };             //This could be current GPS co ordinate of tank8. A dynamic value from the server backend would update tis value with tank co-ordinate
         var Destination = { lat: JSlat, lng: JSlong };
         
+        //This section is to add info windows on start and finish markers, first two are for starting poistion and rest are for finish markers
+        var contentString1 = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h1 id="firstHeading" class="firstHeading">Team8 Tank</h1>'+
+            '<div id="bodyContent">'+
+            '<p>This is the current GPS co-ordinate of the team8 multi-purpose tank. Through this map, the tank is able to be controlled remotely simply through clicking on a destination on the map (marked by a finish flag). Press the submit button when sure of the destination. The back-end algorithm will handle the movement of the buggy to the chosen finishing spot. In the future after pressing submit a dynamic window will pop up where the path of the tank approaching the ending destiantion will be visualised.</p>'+
+            '</div>'+
+            '</div>';
+            
+        var infowindow1 = new google.maps.InfoWindow({
+          content: contentString1
+        });
+        
+       
+        // ------------------------------INFOWINDOW SECTION END-----------------------------//
+        
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 20,
           center: sackville,
           mapTypeId: google.maps.MapTypeId.HYBRID  
         });
+        
 
         // This event listener calls addMarker() when the map is clicked.
         google.maps.event.addListener(map, 'click', function(event) {
           addMarker(event.latLng, map);
+       
        
         x = JSON.stringify(event.latLng);     // Converting event.latLng which is an object into a string containing both lat and longitudes
         
@@ -77,6 +96,7 @@
         
         });
 
+
           // Add a marker at the Tank starting position on the map, with a tank icon image
           var Tank_Image;
           if(Start_Long > JSlong) {
@@ -90,11 +110,15 @@
           label: labels[0],
           map: map,
           icon: Tank_Image
-        });       
+        });
+          Start_Marker.addListener('click', function() {
+          infowindow1.open(map, Start_Marker);
+        });
+      
         
         
         addMarker(Destination, map);        // Add marker to destination through previous form
-        
+
       }
 
       // Adds a marker to the map.
@@ -134,6 +158,7 @@
     </div>
     
     <h1 id="1HEAD">WOLOLOLOLO</h1>
+    
     
     <!--onclick="window.open('http://192.168.137.214:5000/PRINTps')"--> 
       
