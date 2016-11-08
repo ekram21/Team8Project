@@ -19,6 +19,8 @@
       }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=drawing"></script>
+      
     <script>
 
       // In the following example, markers appear when the user clicks on the map.
@@ -27,6 +29,8 @@
       var labelIndex = 0;
 
       function initialize() {
+        
+        var CustomStrokeOpac = 0;
         
         JSlat = {{LATpy}};
         JSlong = {{LONGpy}};
@@ -37,7 +41,55 @@
         var sackville = { lat: Start_Lat, lng: Start_Long };             //This could be current GPS co ordinate of tank8. A dynamic value from the server backend would update tis value with tank co-ordinate
         var Destination = { lat: JSlat, lng: JSlong };
         
-        //This section is to add info windows on start and finish markers, first two are for starting poistion and rest are for finish markers
+        //THIS SECTION IS TO ALLOW THE USER TO DRAW SHAPES ON THE MAP
+          var drawingManager = new google.maps.drawing.DrawingManager({
+          drawingMode: google.maps.drawing.OverlayType.MARKER,
+          drawingControl: true,
+          drawingControlOptions: {
+            position: google.maps.ControlPosition.TOP_CENTER,
+            drawingModes: ['marker', 'circle', 'polygon', 'polyline', 'rectangle']
+          },
+          markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
+          circleOptions: {
+            fillColor: '#ffff00',
+            fillOpacity: 1,
+            strokeWeight: 5,
+            clickable: false,
+            editable: true,
+            zIndex: 1
+          }
+        });
+          //USER DRAWN SHAPES SECTION END------------------------------------//
+        
+        //This section is to draw a polyline from starting destination to ending destination
+        var flightPlanCoordinates = [
+          {lat: Start_Lat, lng: Start_Long},
+          {lat: JSlat, lng: JSlong}
+
+        ];
+        
+        if( (JSlat == 0) ) {
+          CustomStrokeOpac = 0;
+        }
+        else {
+          CustomStrokeOpac = 1.0;
+        }
+        
+        document.getElementById('DestLat').innerHTML = "Destination latitide is: " + JSlat;
+        document.getElementById('DestLong').innerHTML = "Destination longitude is: " + JSlong;
+        
+        var flightPath = new google.maps.Polyline({
+          path: flightPlanCoordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: CustomStrokeOpac,
+          strokeWeight: 2
+        });
+
+  
+      //---------------------POLYLINE SECTION END-----------------------------------------------//
+        
+        //This section is to add info windows on start markers,
         var contentString1 = '<div id="content">'+
             '<div id="siteNotice">'+
             '</div>'+
@@ -54,6 +106,7 @@
        
         // ------------------------------INFOWINDOW SECTION END-----------------------------//
         
+        //MAIN GOOGLE MAP CREATION INSTANCE
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 20,
           center: sackville,
@@ -66,7 +119,7 @@
           addMarker(event.latLng, map);
        
        
-        x = JSON.stringify(event.latLng);     // Converting event.latLng which is an object into a string containing both lat and longitudes
+        x = JSON.stringify(event.latLng);     // Converting event.latLng which is an object into a string containing both lat and longitudes. Since the variable itself is an object containing both lat and long, a lot of string conversion and manipulation has to be carried out to get separate decimal lat and long
         
         //A LOT OF STRING SLICING AND CONVERSION. THERE HAS TO BE AN EASIER WAY THAN THIS BUT WITH MY LIMITED JS KNOWLEDGE THIS WAS WHAT I HACKED TOGETHER TO GET THE JOB DONE
         
@@ -118,6 +171,8 @@
         
         
         addMarker(Destination, map);        // Add marker to destination through previous form
+        flightPath.setMap(map);             //Add the polylines
+        drawingManager.setMap(map);          // add the interface to let users draw shapes
 
       }
 
@@ -157,7 +212,12 @@
       
     </div>
     
-    <h1 id="1HEAD">WOLOLOLOLO</h1>
+    <h1 id="1HEAD">String readings</h1>
+    
+    <br>
+    
+    <h1 id="DestLat">Waiting for input</h1>
+     <h1 id="DestLong">Waiting for input</h1>
     
     
     <!--onclick="window.open('http://192.168.137.214:5000/PRINTps')"--> 
