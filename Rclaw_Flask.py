@@ -257,11 +257,12 @@ def Decipher():
 '''
 
 
-AttemptToConnectToRoboClaw()            #Idk where to call this. If this doesnt work then place this under if statement below (over app.run)
+
 
 # Run the app :)
 if __name__ == "__main__":
-   app.run(host='0.0.0.0', debug=True)
+    AttemptToConnectToRoboClaw() 
+    app.run(host='0.0.0.0', debug=True)
 
 
 
