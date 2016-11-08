@@ -18,7 +18,7 @@ from flask import Flask, render_template, request, url_for
 #Setup MQTT connection to send values from pad
 mqttc=mqtt.Client()
 mqttc.username_pw_set('sam','mosquitto1894')
-mqttc.connect("130.88.154.7",1894,60)
+mqttc.connect("130.88.154.7",1894,60)                 #"localhost:1883" or "10.42.0.1:1883"
 mqttc.loop_start() #start threaded so the pygame stuff can work
 
 
