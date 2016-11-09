@@ -352,6 +352,10 @@ if (!('webkitSpeechRecognition' in window)) {
     if($('#test').text().indexOf('Computer') != -1){               //THIS IS THE SPOT I EDITED with JQUERY TO CONNECT THE GOOGLE SEARCH FUNCTION WITH THE DICTATION FUNCTION
       startDictation();                                         // indexof('place whatever you want the trigger word to be here')
     }
+    
+    else if($('#test').text().indexOf('computer') != -1){               //THIS IS THE SPOT I EDITED with JQUERY TO CONNECT THE GOOGLE SEARCH FUNCTION WITH THE DICTATION FUNCTION
+      startDictation();                                         // indexof('place whatever you want the trigger word to be here')
+    }
    
     interim_span.innerHTML = linebreak(interim_transcript);
     if (final_transcript || interim_transcript) {
